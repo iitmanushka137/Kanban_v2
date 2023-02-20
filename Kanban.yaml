@@ -1,0 +1,764 @@
+      openapi: 3.0.0
+
+      info:
+        title: Kanban
+        contact:
+          email: 21f1003017@student.onlinedegree.iitm.ac.in
+        version: 1.0.0
+      servers:
+        - url: http://127.0.0.1:5000/
+      paths:
+        /api/user:
+           post:
+            tags:
+              - User Api
+            summary: For Signup
+            description: To register user  
+            operationId: signup
+            requestBody:
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      username:
+                        type: string
+                        example: "Anushka Krishna" 
+                      email:
+                        type: string
+                        example: krishna@gmail.com
+                      password:
+                        type: string
+                        example: '123abcde'
+            responses:
+              '200':
+                description: User Registered Succesfully
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        username:
+                          type: string
+                        email:
+                          type: string
+              
+              '400':
+                description: "Error!!!: Paramater"
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        message:
+                          properties:
+                           password:
+                            type: string
+                            example: "password required"
+                           username:
+                            type: string
+                            example: "username required"
+                           email:
+                            type: string
+                            example: "email required"
+              '500':
+                 description: Internal Server Error
+           get:   
+            tags:
+              - User Api
+            summary: Get user details
+            description: To obtain user details, first retrieve the Authentication-token from the flask-security login endpoint.
+            operationId: userdetail
+            parameters:
+              - in: header
+                name: Authentication-Token
+                description: An authorization header
+                required: true
+                schema:
+                  type: string
+           
+            responses:
+              '200':
+                description: User Details
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        username:
+                          type: string
+                        email:
+                          type: string
+              '400':
+                description: "Error!!!: No Authentication-Token,login to access this error"
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        error:
+                          type: string
+                          example: "Please log in to access this page."
+              '500':
+                description: Internal Server Error         
+        /api/list/{email}:
+          post:
+            tags:
+              - List Api
+            summary: Create new list
+            description: To create new list
+            operationId: newlist
+            parameters:
+              - in: path
+                name: email
+                description: Email
+                required: true
+                schema:
+                  type: string
+                  example: "krishna@gmail.com"
+              - in: header
+                name: Authentication-Token
+                description: An authorization header
+                required: true
+                schema:
+                  type: string
+              - in: query
+                name: "list_name"
+                description: "Enter your list name"
+                required: true
+                schema:
+                  type: string
+                  example: "Mathematics"
+              - in: query
+                name: "list_description"
+                description: "Describe your list in few lines."
+                required: true
+                schema:
+                  type: string
+                  example: 'The list contains tasks as cards for specific list'    
+            requestBody:
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      list_name:
+                        type: string
+                        example: "Mathematics" 
+                      list_description:
+                        type: string
+                        example: Describe your list in few lines.        
+            responses:
+              '200':
+                description: "List Created."     
+              '400':
+                description: "Error!!!: No Authentication-Token,login to access this error, List name is required "
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        error:
+                          type: string
+                          example: "Please log in to access this page."
+                        message:
+                          properties:
+                           Tracker_name:
+                            type: string
+                            example: "list name required"
+                           email:
+                            type: string
+                            example: "email required"  
+              '500':
+                description: Internal Server Error
+          get:
+            tags:
+              - List Api
+            summary: It will give you all the lists listed,if you provide email and authentication token.
+            description: To get all lists
+            operationId: alllists
+            parameters:
+              - in: path
+                name: email
+                description: Enter Email
+                required: true
+                schema:
+                  type: string
+                  example: "krishna@gmail.com"
+              - in: header
+                name: Authentication-Token
+                description: An authorization header
+                required: true
+                schema:
+                  type: string    
+            responses:
+              '200':
+                description: "Dictionary of all Lists sent for the user."
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        list_name:
+                          type: string
+                          example: "Mathematics"
+                        list_description:
+                          type: string
+                          example: "I will try to see how many codes I wrote."        
+              '400':
+                description: "Error!!!: No Authentication-Token,login to access this error"
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        Authentication-Token Error:
+                          type: string
+                          example: "Please log in to access this page."
+                        Email Error:  
+                          type: string
+                          example: "There are some wrong user details filled and asked for." 
+              '401':
+                description: "Wrong authentication token."
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        response:
+                          type: object
+                          properties:
+                           errors:
+                            type: string
+                            example: "You are not authenticated. Please supply the correct credentials."                          
+              '500':
+                description: "Internal Server Error"        
+        /api/list/{email}/{lid}:
+          put:
+            tags:
+              - List Api
+            summary: For updating lists details.
+            description: Updating list
+            operationId: update
+            parameters:
+              - in: path
+                name: email
+                description: Enter Email
+                required: true
+                schema:
+                  type: string
+                  example: 'krishna@gmail.com'
+              - in: path
+                name: lid
+                description: List id for the specific list.
+                required: true
+                schema:
+                  type: integer
+                  example: 1
+              - in: header
+                name: Authentication-Token
+                description: An authorization header
+                required: true
+                schema:
+                  type: string
+              - in: query
+                name: "list_name"
+                description: "Enter your list name"
+                required: true
+                schema:
+                  type: string
+                  example: "Mathematics"
+              - in: query
+                name: "list_description"
+                description: "Describe your list in few lines."
+                required: true
+                schema:
+                  type: string
+                  example: 'The list contains tasks as cards for specific list'
+            requestBody:
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      list_name:
+                        type: string
+                        example: "Mathematics" 
+                      list_description:
+                        type: string
+                        example: Describe your list in few line.   
+            responses:
+              '200':
+                description: "List Updated."    
+              '400':
+                description: "Error!!!: No Authentication-Token,login to access this error, List name is required "
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        error:
+                          type: string
+                          example: "list id is not valid"
+                        message:
+                          properties:
+                           list_name:
+                            type: string
+                            example: "list name required"
+                           email:
+                            type: string
+                            example: "email required"
+              '500':
+                description: "Internal Server Error"
+          delete:
+            tags:
+              - List Api
+            summary: "For delete list details with list id."
+            description: "Deleting a list"
+            operationId: "deletelist"
+            parameters: 
+              - in: path
+                name: email
+                description: Enter Email
+                required: true
+                schema:
+                  type: string
+                  example: 'krishna@gmail.com'
+              - in: path
+                name: lid
+                description: "List id for the user List."
+                required: true
+                schema:
+                  type: integer
+                  example: 1
+              - in: header
+                name: Authentication-Token
+                description: An authorization header
+                required: true
+                schema:
+                  type: string      
+            responses:
+              '200':
+                description: "Successfully Deleted."
+              '400':
+                description: "list_id does not exist."
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        error:
+                          type: string
+                          example: "list id does not exist."
+                        
+              '500':
+                description: "Internal Server Error"
+        /api/card/{email}:
+          get:
+            tags:
+              - Card Api
+            summary: Get list of user details, lists and cards for the given user.
+            description: 'Get user details, lists and cards details of user created.'
+            operationId: getcard
+            parameters:
+              - in: path
+                name: email
+                description: 'Enter email.'
+                required: true
+                schema:
+                  type: string
+              - in: header
+                name: Authentication-Token
+                description: An authorization header
+                required: true
+                schema:
+                  type: string
+            responses:
+              '200':
+                description: "Dictionary of user details, all lists and all cards of given user sent."
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        user:
+                          type: string
+                          example: 'anushka'
+                        lists:
+                          type: string
+                          example: 'details of all lists'
+                        cards:
+                          type: string
+                          example: "details of all cards"
+              '400':
+                 description: "something went wrong"
+                 content:
+                   application/json:
+                     schema:
+                       type: object
+                       properties:
+                         error:
+                           type: string
+                           example: "Something Went SomeWhere. Out Type Don't Match"
+              '500':
+                description: "Internal Server Error"
+        /api/card/{email}/{lid}:
+          post:
+            tags:
+              - Card Api
+            summary: Add a new card to the list
+            description: 'Post card details in list created.'
+            operationId: addcard
+            parameters:
+              - in: path
+                name: email
+                description: Enter email
+                required: true
+                schema:
+                  type: string
+                  example: 'krishna@gmail.com'
+              - in: path
+                name: lid
+                description: 'List id is required for correct list card.'
+                required: true
+                schema:
+                  type: integer
+              - in: header
+                name: Authentication-Token
+                description: An authorization header
+                required: true
+                schema:
+                  type: string 
+              - in: query
+                name: card_name
+                description: 'Name of card'
+                required: true
+                schema:
+                  type: string
+                  example: 'card1'
+              - in: query
+                name: card_content
+                description: 'Content of card'
+                required: true
+                schema:
+                  type: string
+                  example: 'card1 content'
+              - in: query
+                name: deadline_date
+                description: 'Deadline of card'
+                required: true
+                schema:
+                  type: string
+                  example: '25 Sep 2022 21:20:57 GMT'
+              - in: query
+                name: completion_date
+                description: 'Completion date of the card'
+                schema:
+                  type: string
+                  example: '25 Sep 2022 21:20:57 GMT'
+            requestBody:
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      card_name:
+                        type: string
+                        example: "Card1"
+                      card_content:
+                        type: string
+                        example: 'This card contains details for this card'
+                      deadline_date:
+                        type: string
+                        example: '25 Dec 2022 21:20:57 GMT'
+                      completion_date:
+                        type: string
+                        example: '25 Dec 2022 21:20:57 GMT'				   
+            responses:
+              '200':
+                description: Card Added Successfully
+              '400':
+                description: "Error!!!: No Authentication-Token,login to access this error, Card name, and Card Content, and deadline_date is required "
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        error:
+                          type: string
+                          example: "Please log in to access this page."
+                        message:
+                          properties:
+                           card_name:
+                            type: string
+                            example: "card name required"
+                           card_content:
+                            type: string
+                            example: "card content required"
+                           deadline_date:
+                            type: string
+                            example: "25 Dec 2022 21:20:57 GMT"
+                           email:
+                            type: string
+                            example: "email required"
+              '401':
+                description: "Token Expired"          
+              '500':
+                description: "Internal Server Error"
+          delete:
+            tags:
+              - Card Api
+            summary: "For delete card details with card id."
+            description: "Deleting a card"
+            operationId: "deletecard"
+            parameters: 
+              - in: path
+                name: email
+                description: 'Enter Email'
+                required: true
+                schema:
+                  type: string
+                  example: krishna@gmail.com
+              - in: path
+                name: lid
+                description: 'Card id is needed for deleting card details.'
+                required: true
+                schema:
+                  type: string
+              - in: header
+                name: Authentication-Token
+                description: An authorization header
+                required: true
+                schema:
+                  type: string       
+            responses:
+              '200':
+                description: "Successfully Deleted."
+              '400':
+                description: "lid does not exist."
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        error:
+                          type: string
+                          example: "There was a problem deleting that task."
+              '500':
+                description: "Internal Server Error"  
+        /api/card/{email}/{olid}/{cid}:
+          put:
+            tags:
+              - Card Api
+            summary: update card of the list
+            description: 'Post card details in list created.'
+            operationId: updatecard
+            parameters:
+              - in: path
+                name: cid
+                description: 'Card id is needed for updating card details.'
+                required: true
+                schema:
+                  type: integer
+              - in: path
+                name: olid
+                description: 'list id is required for correct list.'
+                required: true
+                schema:
+                  type: integer
+              - in: path
+                name: email
+                description: 'Enter Email'
+                required: true
+                schema:
+                  type: string
+                  example: krishna@gmail.com
+              - in: header
+                name: Authentication-Token
+                description: An authorization header
+                required: true
+                schema:
+                  type: string  
+              - in: query
+                name: card_name
+                description: "card name to be added"
+                required: true
+                schema:
+                  type: string
+                  example: 'card abc'
+              - in: query
+                name: card_content
+                description: 'card content for the card'
+                required: true
+                schema:
+                  type: string
+                  example: "card abc content" 
+              - in: query
+                name: deadline_date
+                description: 'deadline date for completion of card'
+                required: true
+                schema:
+                  type: string
+                  example: '25 Sep 2022 21:20:57 GMT'
+              - in: query
+                name: completion_date
+                description: 'Date on which the card got completed'
+                schema:
+                  type: integer   
+            requestBody:
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    properties:
+                      card_name:
+                        type: string
+                        example: "card1" 
+                      card_content:
+                        type: string
+                        example: Describe your card in few line.
+                      deadline_date:
+                        type: string
+                        example: '25 Sep 2022 21:20:57 GMT'
+                      completion_date:
+                        type: string
+            responses:
+              '200':
+                description: Card Updated Successfully
+              '400':
+                description: "No authentication-token, login to access, list/card id not valid"
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        error:
+                          type: string
+                          example: "No authentication-token, login to access, list/card id not valid"
+                        message:
+                          properties:
+                           card_name:
+                            type: string
+                            example: 'card1'
+                           card_content:
+                            type: string
+                            example: 'card1 content'
+                           deadline_date:
+                            type: string
+              '401':
+                description: "Token Expired"          
+              '500':
+                description: "Internal Server Error"
+        /api/summary/{email}:
+          get:
+            tags:
+              - Summary Api
+            summary: It gives the user details, list details, statistics of cards completion, and the graph representing completion.
+            description: To get all details
+            operationId: summary
+            parameters:
+              - in: path
+                name: email
+                description: Enter email
+                required: true
+                schema:
+                  type: string
+                  example: "krishna@gmail.com"
+              - in: header
+                name: Authentication-Token
+                description: An authorization header
+                required: true
+                schema: 
+                  type: string
+            responses:
+              '200':
+                description: "Dictionary of user details, list details, completion details and graph"
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        ur:
+                          type: string
+                        lt:
+                          type: string
+                        stat:
+                          type: string
+                        base64:
+                          type: string
+              '400':
+                description: "something went wrong"
+                content:
+                  application/json:
+                    schema:
+                      type: object
+                      properties:
+                        error:
+                          type: string
+                          example: "Something Went SomeWhere. Out Type Don't Match"
+              '500':
+                description: "Internal Server Error"
+        /exportList/{email}:
+          get:
+            tags:
+              - Export
+            summary: Export All Lists of the specific user
+            description: ''
+            operationId: Export List
+            parameters:
+              - in: header
+                name: Authorization-Token
+                description: An Authorization header
+                required: true
+                schema:
+                  type: string
+              - in: path
+                name: email
+                description: ''
+                required: true
+                schema:
+                  type: string
+                  example: krishna@gmail.com
+            responses:
+              '200':
+                description: Please Check your mail and Download the Csv File.
+              '401':
+                description: "Invalid Token or Token Missing"
+              '500':
+                description: "Internal server error." 
+        /api/exportCard/{email}/{lid}:
+          get:
+            tags:
+              - Export
+            summary: Export All cards
+            description: ''
+            operationId: Export cards
+            parameters:
+              - in: header
+                name: Authorization-Token
+                description: An Authorization header
+                required: true
+                schema:
+                  type: string
+              - in: path
+                name: email
+                description: ''
+                required: true
+                schema:
+                  type: string
+                  example: krishna@gmail.com
+              - in: path
+                name: lid
+                description: ''
+                required: true
+                schema:
+                  type: integer
+                  example: 1   
+            responses:
+              '200':
+                description: Please Check your mail and Download the Csv File.
+              '401':
+                description: "Invalid Token or Token Missing"
+              '500':
+                description: "Internal server error."
+   
