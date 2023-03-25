@@ -33,19 +33,22 @@ class UserAPI(Resource):
 
     @marshal_with(user_fields)
     def post(self):
-        args = user_req_args.parse_args()
-        
-        email = args.get("email")
-        user_name = args.get("username")
-        passw = args.get("password")
-        check=user_model.query.filter_by(email=email).first()
-        if check:
-           return jsonify('email you entered already belongs to an account. Try another email.')
-        else:    
-            user_datastore.create_user(email=email,username=user_name,password=hash_password(passw))
-            db.session.commit()
-            data = user_model.query.filter_by(email=email).first()
-            return data
+        try:
+            args = user_req_args.parse_args()
+            
+            email = args.get("email")
+            user_name = args.get("username")
+            passw = args.get("password")
+            check=user_model.query.filter_by(email=email).first()
+            if check:
+                return ({'error':'email you entered already belongs to an account. Try another email.'}), 400
+            else:    
+                user_datastore.create_user(email=email,username=user_name,password=hash_password(passw))
+                db.session.commit()
+                data = user_model.query.filter_by(email=email).first()
+                return data
+        except:
+            return ({'error':'email you entered already belongs to an account. Try another email.'}), 500
 
 list_req_args=reqparse.RequestParser()
 list_req_args.add_argument('list_name', required=True, help="list name is required")
