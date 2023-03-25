@@ -51,29 +51,30 @@
         methods: {
             async register() {
                 if(this.emailValidation(this.email) && this.passValidation(this.password)){
-                try {
-                    fetch("http://127.0.0.1:5000/api/user",{
-                        method: "POST",
-                        headers: {
-                            "Access-Control-Allow-Origin": "*",
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            email: this.email, 
-                            username: this.username, 
-                            password: this.password 
+                    try {
+                        const response = await fetch("http://127.0.0.1:5000/api/user",{
+                            method: "POST",
+                            headers: {
+                                "Access-Control-Allow-Origin": "*",
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                email: this.email, 
+                                username: this.username, 
+                                password: this.password 
+                            })
                         })
-                    }).then((response) => response.json())
-                    .then(async (data) =>{
-                        console.log(data)
-                        this.$router.go(-1)
-                    }).catch((err) => {
-                        console.log(err)
-                    })
-                }
-                catch (error) {
-                    console.log("Registration Failed: ",error)
-                }
+                        if (response.ok) {
+                            console.log("registered")
+                        } else if (response.status === 400) {
+                            this.error_1 = 'Email is already registered';
+                        } else {
+                            throw new Error('Registration failed');
+                        }
+                    } 
+                    catch (error) {
+                        console.log("Registration Failed: ",error)
+                    }
             }else if(!this.emailValidation(this.email)){
                 this.error_1 = "Please enter a valid email"
             }else if(!this.passValidation(this.password)){
